@@ -1,0 +1,77 @@
+// Mock data for initial development and testing
+
+import type { Account, ContentIdea } from "./types"
+
+export const mockAccounts: Account[] = [
+  {
+    id: "1",
+    name: "科技评测官",
+    platformUrl: "https://example.com/tech-reviewer",
+    followerCount: 125000,
+    totalPosts: 89,
+    weeklyFollowerGrowth: 8.5,
+    weeklyLikeGrowth: 12.3,
+    dailyFollowerGrowth: 1.2,
+    dailyLikeGrowth: 2.1,
+    persona: {
+      personality: "专业、客观、幽默",
+      industry: "科技数码",
+      appearance: "年轻男性，休闲装",
+      catchphrase: "让我们来看看真相",
+      updateFrequency: "每周3次",
+    },
+    createdAt: "2024-01-15T00:00:00Z",
+    updatedAt: "2024-01-20T00:00:00Z",
+    status: "active",
+  },
+  {
+    id: "2",
+    name: "美食探店",
+    platformUrl: "https://example.com/food-explorer",
+    followerCount: 89000,
+    totalPosts: 156,
+    weeklyFollowerGrowth: -2.3,
+    weeklyLikeGrowth: -1.5,
+    dailyFollowerGrowth: -0.5,
+    dailyLikeGrowth: -0.3,
+    persona: {
+      personality: "热情、真诚、接地气",
+      industry: "美食探店",
+      appearance: "女性，时尚休闲",
+      catchphrase: "好吃到飞起",
+      updateFrequency: "每日更新",
+    },
+    createdAt: "2024-01-10T00:00:00Z",
+    updatedAt: "2024-01-20T00:00:00Z",
+    status: "active",
+  },
+]
+
+export const mockIdeas: ContentIdea[] = [
+  {
+    id: "1",
+    accountId: "1",
+    title: "iPhone 16 Pro 深度评测",
+    description: "全面测试性能、拍照、续航",
+    status: "scheduled",
+    createdAt: "2024-01-18T00:00:00Z",
+    updatedAt: "2024-01-18T00:00:00Z",
+  },
+  {
+    id: "2",
+    accountId: "1",
+    title: "2024年最值得买的笔记本电脑",
+    status: "in-production",
+    createdAt: "2024-01-17T00:00:00Z",
+    updatedAt: "2024-01-19T00:00:00Z",
+  },
+  {
+    id: "3",
+    accountId: "2",
+    title: "探店：市中心新开的日料店",
+    description: "环境好，价格实惠",
+    status: "pending",
+    createdAt: "2024-01-19T00:00:00Z",
+    updatedAt: "2024-01-19T00:00:00Z",
+  },
+]

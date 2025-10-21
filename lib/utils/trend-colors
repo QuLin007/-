@@ -1,0 +1,26 @@
+// Custom color system: RED for upward trends, GREEN for downward trends
+// This is intentionally inverted from standard conventions per user requirements
+
+export function getTrendColor(value: number): string {
+  if (value > 0) return "text-red-500" // Upward trend = RED
+  if (value < 0) return "text-green-500" // Downward trend = GREEN
+  return "text-muted-foreground" // No change
+}
+
+export function getTrendBgColor(value: number): string {
+  if (value > 0) return "bg-red-500/10" // Upward trend = RED background
+  if (value < 0) return "bg-green-500/10" // Downward trend = GREEN background
+  return "bg-muted/10" // No change
+}
+
+export function getTrendIcon(value: number): "↑" | "↓" | "→" {
+  if (value > 0) return "↑"
+  if (value < 0) return "↓"
+  return "→"
+}
+
+export function formatTrendValue(value: number): string {
+  const icon = getTrendIcon(value)
+  const abs = Math.abs(value)
+  return `${icon} ${abs.toFixed(1)}%`
+}

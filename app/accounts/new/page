@@ -1,0 +1,37 @@
+"use client"
+
+import { useRouter } from "next/navigation"
+import { ArrowLeft } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { AccountForm } from "@/components/account-form"
+import { saveAccount } from "@/lib/storage"
+import type { Account } from "@/lib/types"
+
+export default function NewAccountPage() {
+  const router = useRouter()
+
+  const handleSubmit = (account: Account) => {
+    saveAccount(account)
+    router.push("/")
+  }
+
+  return (
+    <div className="mx-auto min-h-screen max-w-lg bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-40 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex h-14 items-center gap-4 px-4">
+          <Button variant="ghost" size="icon" onClick={() => router.back()}>
+            <ArrowLeft className="h-5 w-5" />
+            <span className="sr-only">返回</span>
+          </Button>
+          <h1 className="text-lg font-semibold">添加账号</h1>
+        </div>
+      </header>
+
+      {/* Main content */}
+      <main className="p-4">
+        <AccountForm onSubmit={handleSubmit} onCancel={() => router.back()} />
+      </main>
+    </div>
+  )
+}

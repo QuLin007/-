@@ -26,14 +26,10 @@ export default function HomePage() {
   useEffect(() => {
     // Load accounts from storage or use mock data
     let loadedAccounts = getAccounts()
-    if (loadedAccounts.length === 0) {
+    if (!loadedAccounts || loadedAccounts.length === 0) {
       // Initialize with mock data on first load
-      mockAccounts.forEach((account) => {
-        localStorage.setItem("craftkit_accounts", JSON.stringify(mockAccounts))
-      })
-      mockIdeas.forEach((idea) => {
-        localStorage.setItem("craftkit_ideas", JSON.stringify(mockIdeas))
-      })
+      localStorage.setItem("craftkit_accounts", JSON.stringify(mockAccounts))
+      localStorage.setItem("craftkit_ideas", JSON.stringify(mockIdeas))
       loadedAccounts = mockAccounts
     }
     setAccounts(loadedAccounts)

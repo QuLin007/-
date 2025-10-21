@@ -1,0 +1,111 @@
+"use client"
+
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Lightbulb, User, MoreVertical, BarChart3 } from "lucide-react"
+import Link from "next/link"
+import type { Account } from "@/lib/types"
+import { getTrendColor, formatTrendValue } from "@/lib/utils/trend-colors"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+
+interface AccountCardProps {
+  account: Account
+  onEdit?: () => void
+  onDelete?: () => void
+}
+
+export function AccountCard({ account, onEdit, onDelete }: AccountCardProps) {
+  return (
+    <Card className="relative overflow-hidden border-border/50 bg-card">
+      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
+        <div className="space-y-1">
+          <h3 className="text-lg font-semibold leading-none tracking-tight">{account.name}</h3>
+          <Badge variant="outline" className="mt-2 text-xs">
+            {account.persona.updateFrequency}
+          </Badge>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <MoreVertical className="h-4 w-4" />
+              <span className="sr-only">更多选项</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <Link href={`/accounts/${account.id}/analytics`}>查看数据分析</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onEdit}>编辑人设</DropdownMenuItem>
+            <DropdownMenuItem onClick={onDelete} className="text-destructive">
+              删除账号
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </CardHeader>
+
+      <CardContent className="space-y-4 pb-4">
+        {/* Follower count - prominently displayed */}
+        <div className="space-y-1">
+          <p className="text-sm text-muted-foreground">粉丝总数</p>
+          <p className="text-3xl font-bold tracking-tight">{account.followerCount.toLocaleString()}</p>
+        </div>
+
+        {/* Growth trends with custom colors */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1 rounded-lg border border-border/50 bg-muted/20 p-3">
+            <p className="text-xs text-muted-foreground">本周粉丝增长</p>
+            <p className={`text-sm font-semibold ${getTrendColor(account.weeklyFollowerGrowth)}`}>
+              {formatTrendValue(account.weeklyFollowerGrowth)}
+            </p>
+          </div>
+          <div className="space-y-1 rounded-lg border border-border/50 bg-muted/20 p-3">
+            <p className="text-xs text-muted-foreground">本周点赞增长</p>
+            <p className={`text-sm font-semibold ${getTrendColor(account.weeklyLikeGrowth)}`}>
+              {formatTrendValue(account.weeklyLikeGrowth)}
+            </p>
+          </div>
+          <div className="space-y-1 rounded-lg border border-border/50 bg-muted/20 p-3">
+            <p className="text-xs text-muted-foreground">昨日粉丝增长</p>
+            <p className={`text-sm font-semibold ${getTrendColor(account.dailyFollowerGrowth)}`}>
+              {formatTrendValue(account.dailyFollowerGrowth)}
+            </p>
+          </div>
+          <div className="space-y-1 rounded-lg border border-border/50 bg-muted/20 p-3">
+            <p className="text-xs text-muted-foreground">昨日点赞增长</p>
+            <p className={`text-sm font-semibold ${getTrendColor(account.dailyLikeGrowth)}`}>
+              {formatTrendValue(account.dailyLikeGrowth)}
+            </p>
+          </div>
+        </div>
+
+        {/* Total posts */}
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">作品总数</span>
+          <span className="font-medium">{account.totalPosts}</span>
+        </div>
+      </CardContent>
+
+      <CardFooter className="flex gap-2 border-t border-border/50 pt-4">
+        <Button variant="outline" size="sm" className="flex-1 bg-transparent" asChild>
+          <Link href={`/accounts/${account.id}/analytics`}>
+            <BarChart3 className="mr-2 h-4 w-4" />
+            数据
+          </Link>
+        </Button>
+        <Button variant="outline" size="sm" className="flex-1 bg-transparent" asChild>
+          <Link href={`/ideas?account=${account.id}`}>
+            <Lightbulb className="mr-2 h-4 w-4" />
+            选题
+          </Link>
+        </Button>
+        <Button variant="outline" size="sm" className="flex-1 bg-transparent" asChild>
+          <Link href={`/accounts/${account.id}`}>
+            <User className="mr-2 h-4 w-4" />
+            人设
+          </Link>
+        </Button>
+      </CardFooter>
+    </Card>
+  )
+}

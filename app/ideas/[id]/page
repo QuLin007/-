@@ -1,0 +1,66 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter, useParams } from "next/navigation"
+import { ArrowLeft } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { IdeaForm } from "@/components/idea-form"
+import { getIdeas, saveIdea } from "@/lib/storage"
+import type { ContentIdea } from "@/lib/types"
+
+export default function EditIdeaPage() {
+  const router = useRouter()
+  const params = useParams()
+  const [idea, setIdea] = useState<ContentIdea | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const id = params.id as string
+    const ideas = getIdeas()
+    const foundIdea = ideas.find((i) => i.id === id)
+
+    if (foundIdea) {
+      setIdea(foundIdea)
+    } else {
+      router.push("/ideas")
+    }
+    setLoading(false)
+  }, [params.id, router])
+
+  const handleSubmit = (updatedIdea: ContentIdea) => {
+    saveIdea(updatedIdea)
+    router.push("/ideas")
+  }
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-muted-foreground">加载中...</p>
+      </div>
+    )
+  }
+
+  if (!idea) {
+    return null
+  }
+
+  return (
+    <div className="mx-auto min-h-screen max-w-lg bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-40 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex h-14 items-center gap-4 px-4">
+          <Button variant="ghost" size="icon" onClick={() => router.back()}>
+            <ArrowLeft className="h-5 w-5" />
+            <span className="sr-only">返回</span>
+          </Button>
+          <h1 className="text-lg font-semibold">编辑选题</h1>
+        </div>
+      </header>
+
+      {/* Main content */}
+      <main className="p-4">
+        <IdeaForm idea={idea} onSubmit={handleSubmit} onCancel={() => router.back()} />
+      </main>
+    </div>
+  )
+}

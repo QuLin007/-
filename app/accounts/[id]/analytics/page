@@ -1,0 +1,229 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter, useParams } from "next/navigation"
+import { ArrowLeft, Users, FileText } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { TrendChart } from "@/components/trend-chart"
+import { getAccountById, getIdeasByAccount } from "@/lib/storage"
+import { getTrendColor, formatTrendValue } from "@/lib/utils/trend-colors"
+import type { Account } from "@/lib/types"
+
+export default function AccountAnalyticsPage() {
+  const router = useRouter()
+  const params = useParams()
+  const [account, setAccount] = useState<Account | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const id = params.id as string
+    const foundAccount = getAccountById(id)
+
+    if (foundAccount) {
+      setAccount(foundAccount)
+    } else {
+      router.push("/")
+    }
+    setLoading(false)
+  }, [params.id, router])
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-muted-foreground">加载中...</p>
+      </div>
+    )
+  }
+
+  if (!account) {
+    return null
+  }
+
+  // Generate mock weekly data for visualization
+  const weeklyFollowerData = [
+    { label: "周一", value: account.dailyFollowerGrowth * 0.8 },
+    { label: "周二", value: account.dailyFollowerGrowth * 1.2 },
+    { label: "周三", value: account.dailyFollowerGrowth * 0.9 },
+    { label: "周四", value: account.dailyFollowerGrowth * 1.5 },
+    { label: "周五", value: account.dailyFollowerGrowth * 1.1 },
+    { label: "周六", value: account.dailyFollowerGrowth * 0.7 },
+    { label: "周日", value: account.dailyFollowerGrowth },
+  ]
+
+  const weeklyLikeData = [
+    { label: "周一", value: account.dailyLikeGrowth * 0.9 },
+    { label: "周二", value: account.dailyLikeGrowth * 1.3 },
+    { label: "周三", value: account.dailyLikeGrowth * 0.8 },
+    { label: "周四", value: account.dailyLikeGrowth * 1.6 },
+    { label: "周五", value: account.dailyLikeGrowth * 1.2 },
+    { label: "周六", value: account.dailyLikeGrowth * 0.6 },
+    { label: "周日", value: account.dailyLikeGrowth },
+  ]
+
+  const ideas = getIdeasByAccount(account.id)
+  const publishedIdeas = ideas.filter((i) => i.status === "published").length
+  const inProductionIdeas = ideas.filter((i) => i.status === "in-production").length
+
+  return (
+    <div className="mx-auto min-h-screen max-w-lg bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-40 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex h-14 items-center gap-4 px-4">
+          <Button variant="ghost" size="icon" onClick={() => router.back()}>
+            <ArrowLeft className="h-5 w-5" />
+            <span className="sr-only">返回</span>
+          </Button>
+          <div className="flex-1">
+            <h1 className="text-lg font-semibold">{account.name}</h1>
+            <p className="text-xs text-muted-foreground">数据分析</p>
+          </div>
+        </div>
+      </header>
+
+      {/* Main content */}
+      <main className="space-y-4 p-4">
+        {/* Key Metrics */}
+        <div className="grid grid-cols-2 gap-3">
+          <Card className="border-border/50">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <p className="text-xs text-muted-foreground">粉丝总数</p>
+              </div>
+              <p className="mt-2 text-2xl font-bold">{account.followerCount.toLocaleString()}</p>
+              <p className={`mt-1 text-xs font-semibold ${getTrendColor(account.weeklyFollowerGrowth)}`}>
+                本周 {formatTrendValue(account.weeklyFollowerGrowth)}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/50">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-muted-foreground" />
+                <p className="text-xs text-muted-foreground">作品总数</p>
+              </div>
+              <p className="mt-2 text-2xl font-bold">{account.totalPosts}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{publishedIdeas} 个已发布</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Trend Charts */}
+        <TrendChart
+          title="粉丝增长趋势"
+          description="过去7天的粉丝增长情况"
+          data={weeklyFollowerData}
+          currentValue={account.followerCount}
+          changePercent={account.weeklyFollowerGrowth}
+        />
+
+        <TrendChart
+          title="点赞增长趋势"
+          description="过去7天的点赞增长情况"
+          data={weeklyLikeData}
+          currentValue={account.followerCount * 10} // Mock total likes
+          changePercent={account.weeklyLikeGrowth}
+        />
+
+        {/* Content Performance */}
+        <Card className="border-border/50">
+          <CardHeader>
+            <CardTitle className="text-base">内容生产</CardTitle>
+            <CardDescription className="text-xs">选题和发布情况</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">总选题数</span>
+              <span className="text-lg font-semibold">{ideas.length}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">制作中</span>
+              <span className="text-lg font-semibold">{inProductionIdeas}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">已发布</span>
+              <span className="text-lg font-semibold">{publishedIdeas}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">发布率</span>
+              <span className="text-lg font-semibold">
+                {ideas.length > 0 ? ((publishedIdeas / ideas.length) * 100).toFixed(0) : 0}%
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Growth Comparison */}
+        <Card className="border-border/50">
+          <CardHeader>
+            <CardTitle className="text-base">增长对比</CardTitle>
+            <CardDescription className="text-xs">不同时间段的增长情况</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">昨日粉丝增长</span>
+                <span className={`text-sm font-semibold ${getTrendColor(account.dailyFollowerGrowth)}`}>
+                  {formatTrendValue(account.dailyFollowerGrowth)}
+                </span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className={`h-full ${account.dailyFollowerGrowth > 0 ? "bg-red-500" : "bg-green-500"}`}
+                  style={{ width: `${Math.min(Math.abs(account.dailyFollowerGrowth) * 10, 100)}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">本周粉丝增长</span>
+                <span className={`text-sm font-semibold ${getTrendColor(account.weeklyFollowerGrowth)}`}>
+                  {formatTrendValue(account.weeklyFollowerGrowth)}
+                </span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className={`h-full ${account.weeklyFollowerGrowth > 0 ? "bg-red-500" : "bg-green-500"}`}
+                  style={{ width: `${Math.min(Math.abs(account.weeklyFollowerGrowth) * 10, 100)}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">昨日点赞增长</span>
+                <span className={`text-sm font-semibold ${getTrendColor(account.dailyLikeGrowth)}`}>
+                  {formatTrendValue(account.dailyLikeGrowth)}
+                </span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className={`h-full ${account.dailyLikeGrowth > 0 ? "bg-red-500" : "bg-green-500"}`}
+                  style={{ width: `${Math.min(Math.abs(account.dailyLikeGrowth) * 10, 100)}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">本周点赞增长</span>
+                <span className={`text-sm font-semibold ${getTrendColor(account.weeklyLikeGrowth)}`}>
+                  {formatTrendValue(account.weeklyLikeGrowth)}
+                </span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className={`h-full ${account.weeklyLikeGrowth > 0 ? "bg-red-500" : "bg-green-500"}`}
+                  style={{ width: `${Math.min(Math.abs(account.weeklyLikeGrowth) * 10, 100)}%` }}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </main>
+    </div>
+  )
+}
